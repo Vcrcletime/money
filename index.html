@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>รายรับรายจ่าย</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#12302E">
+<link rel="icon" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEF3F2;--card:#fff;--ink:#12302E;--mute:#5E7471;--line:#D5E0DE;
+  --in:#1F8A5B;--out:#C2410C;--accent:#12302E;--onaccent:#fff;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0E1A19;--card:#162826;--card:#162826;--ink:#E4F0EE;--mute:#8FA7A3;--line:#243B38;
+  --in:#4CC38A;--out:#FF8A5B;--accent:#4CC38A;--onaccent:#0E1A19;}}
+:root[data-theme="dark"]{--bg:#0E1A19;--card:#162826;--ink:#E4F0EE;--mute:#8FA7A3;--line:#243B38;--in:#4CC38A;--out:#FF8A5B;--accent:#4CC38A;--onaccent:#0E1A19}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 "IBM Plex Sans Thai",system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
+main{max-width:520px;margin:0 auto;padding:16px 16px 110px}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--in);outline-offset:2px}
+
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.month{display:flex;align-items:center;gap:4px}
+.month button,.icon-btn{background:none;border:0;width:40px;height:40px;border-radius:50%;font-size:20px}
+.month button:active,.icon-btn:active{background:var(--line)}
+.month b{min-width:130px;text-align:center;font-size:17px}
+
+.sum{background:var(--accent);color:var(--onaccent);border-radius:20px;padding:20px}
+.sum small{opacity:.75;font-size:14px}
+.bal{font-size:40px;font-weight:700;letter-spacing:-.5px;line-height:1.15;margin:2px 0 14px}
+.io{display:flex;gap:12px}
+.io div{flex:1;background:rgba(255,255,255,.12);border-radius:12px;padding:10px 12px}
+.io b{display:block;font-size:18px}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-top:14px}
+.card h2{font-size:15px;margin:0 0 10px;font-weight:500;color:var(--mute)}
+.bar{display:flex;height:14px;border-radius:7px;overflow:hidden;background:var(--line)}
+.bar i{display:block;height:100%}
+.legend{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:6px}
+.legend li{display:flex;align-items:center;gap:8px;font-size:15px}
+.legend em{width:10px;height:10px;border-radius:3px;flex:none}
+.legend span{flex:1}
+.legend b{font-weight:500}
+
+.day{margin:18px 4px 6px;font-size:14px;color:var(--mute);display:flex;justify-content:space-between}
+.item{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:6px}
+.item:active{background:var(--line)}
+.dot{width:10px;height:10px;border-radius:50%;flex:none}
+.item .t{flex:1;min-width:0}
+.item .t b{font-weight:500;display:block}
+.item .t span{font-size:14px;color:var(--mute);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.amt{font-weight:700;font-variant-numeric:tabular-nums}
+.amt.in{color:var(--in)}.amt.out{color:var(--out)}
+.empty{text-align:center;color:var(--mute);padding:36px 12px}
+
+.fab{position:fixed;right:max(18px,calc(50% - 242px));bottom:calc(18px + env(safe-area-inset-bottom,0px));height:56px;padding:0 24px;border-radius:28px;border:0;background:var(--accent);color:var(--onaccent);font-weight:700;font-size:17px;box-shadow:0 6px 18px rgba(0,0,0,.25)}
+
+dialog{border:0;border-radius:22px 22px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom,0px));width:100%;max-width:520px;margin:auto auto 0;background:var(--card);color:var(--ink)}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--bg);border-radius:12px;padding:4px;margin-bottom:14px}
+.seg button{border:0;background:none;border-radius:9px;padding:10px;font-weight:500}
+.seg button.on.out{background:var(--out);color:#fff}
+.seg button.on.in{background:var(--in);color:#fff}
+label{display:block;font-size:14px;color:var(--mute);margin:10px 0 4px}
+input,select{width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
+#amt{font-size:28px;font-weight:700}
+.row{display:flex;gap:10px}.row>*{flex:1}
+.actions{display:flex;gap:10px;margin-top:18px}
+.actions button{flex:1;padding:14px;border-radius:12px;border:1px solid var(--line);background:none;font-weight:500}
+.actions .save{background:var(--accent);color:var(--onaccent);border-color:var(--accent);flex:2;font-weight:700}
+.actions .del{color:var(--out)}
+.menu button{display:block;width:100%;text-align:left;padding:14px 4px;background:none;border:0;border-bottom:1px solid var(--line);font-size:16px}
+.menu p{font-size:14px;color:var(--mute);margin:12px 4px 0}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:15px;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.show{opacity:1}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <div class="top">
+    <div class="month">
+      <button id="prev" aria-label="เดือนก่อนหน้า">‹</button>
+      <b id="mlabel"></b>
+      <button id="next" aria-label="เดือนถัดไป">›</button>
+    </div>
+    <button class="icon-btn" id="menuBtn" aria-label="เมนูสำรองข้อมูล">⋮</button>
+  </div>
+
+  <section class="sum">
+    <small>คงเหลือเดือนนี้</small>
+    <div class="bal" id="bal">฿0</div>
+    <div class="io">
+      <div><small>รายรับ</small><b id="sIn">฿0</b></div>
+      <div><small>รายจ่าย</small><b id="sOut">฿0</b></div>
+    </div>
+  </section>
+
+  <section class="card" id="breakCard" hidden>
+    <h2>รายจ่ายแยกตามหมวด</h2>
+    <div class="bar" id="bar"></div>
+    <ul class="legend" id="legend"></ul>
+  </section>
+
+  <section id="list"></section>
+</main>
+
+<button class="fab" id="add">+ เพิ่มรายการ</button>
+<div class="toast" id="toast" role="status"></div>
+
+<dialog id="dlg">
+  <div class="seg" id="seg">
+    <button type="button" data-t="out" class="out on">รายจ่าย</button>
+    <button type="button" data-t="in" class="in">รายรับ</button>
+  </div>
+  <label for="amt">จำนวนเงิน (บาท)</label>
+  <input id="amt" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0">
+  <div class="row">
+    <div><label for="cat">หมวดหมู่</label><select id="cat"></select></div>
+    <div><label for="date">วันที่</label><input id="date" type="date"></div>
+  </div>
+  <label for="note">บันทึก (ไม่บังคับ)</label>
+  <input id="note" type="text" maxlength="80" placeholder="เช่น ข้าวมันไก่">
+  <div class="actions">
+    <button type="button" class="del" id="del" hidden>ลบ</button>
+    <button type="button" id="cancel">ยกเลิก</button>
+    <button type="button" class="save" id="save">บันทึก</button>
+  </div>
+</dialog>
+
+<dialog id="menu">
+  <div class="menu">
+    <button id="expJson">สำรองข้อมูล (ไฟล์ JSON)</button>
+    <button id="expCsv">ส่งออกเป็น CSV (เปิดใน Excel/Sheets)</button>
+    <button id="impBtn">นำเข้าข้อมูลจากไฟล์ JSON</button>
+    <input type="file" id="impFile" accept="application/json,.json" hidden>
+    <p>ข้อมูลเก็บในเครื่องนี้เท่านั้น ถ้าล้างข้อมูลเบราว์เซอร์ข้อมูลจะหาย ควรสำรองไฟล์ไว้เป็นระยะ</p>
+  </div>
+  <div class="actions"><button type="button" id="menuClose">ปิด</button></div>
+</dialog>
+
+<script>
+const KEY='expense-tracker-v1';
+const CATS={
+  out:['อาหาร','เดินทาง','ของใช้','บิล/ค่าน้ำไฟ','บันเทิง','สุขภาพ','อื่นๆ'],
+  in:['เงินเดือน','งานฟรีแลนซ์','ขายของ','อื่นๆ']
+};
+const COLORS=['#1F8A5B','#2F6FDE','#C2410C','#B8860B','#8B5CF6','#D6336C','#6B7F7C'];
+const $=id=>document.getElementById(id);
+const fmt=n=>'฿'+Number(n).toLocaleString('th-TH',{maximumFractionDigits:2});
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad=n=>String(n).padStart(2,'0');
+const today=()=>{const d=new Date();return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`};
+
+let tx=load();
+let month=today().slice(0,7);
+let editId=null, curType='out';
+
+function load(){
+  try{const v=JSON.parse(localStorage.getItem(KEY));return Array.isArray(v)?v:[]}catch(e){return []}
+}
+function save(){
+  try{localStorage.setItem(KEY,JSON.stringify(tx))}catch(e){toast('บันทึกลงเครื่องไม่ได้ ลองสำรองข้อมูลไว้ก่อน')}
+}
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove('show'),2200)}
+
+function render(){
+  const [y,m]=month.split('-').map(Number);
+  $('mlabel').textContent=new Date(y,m-1,1).toLocaleDateString('th-TH',{month:'long',year:'numeric'});
+  const rows=tx.filter(t=>t.date.startsWith(month)).sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
+  const sIn=rows.filter(t=>t.type==='in').reduce((s,t)=>s+t.amt,0);
+  const sOut=rows.filter(t=>t.type==='out').reduce((s,t)=>s+t.amt,0);
+  $('bal').textContent=fmt(sIn-sOut);
+  $('sIn').textContent=fmt(sIn);$('sOut').textContent=fmt(sOut);
+
+  // breakdown
+  const by={};rows.filter(t=>t.type==='out').forEach(t=>by[t.cat]=(by[t.cat]||0)+t.amt);
+  const ents=Object.entries(by).sort((a,b)=>b[1]-a[1]);
+  $('breakCard').hidden=!ents.length;
+  $('bar').innerHTML=ents.map(([c,v],i)=>`<i style="width:${v/sOut*100}%;background:${COLORS[i%COLORS.length]}" title="${esc(c)}"></i>`).join('');
+  $('legend').innerHTML=ents.map(([c,v],i)=>`<li><em style="background:${COLORS[i%COLORS.length]}"></em><span>${esc(c)}</span><b>${fmt(v)} (${Math.round(v/sOut*100)}%)</b></li>`).join('');
+
+  // list
+  if(!rows.length){$('list').innerHTML='<div class="empty">ยังไม่มีรายการในเดือนนี้<br>กด “+ เพิ่มรายการ” เพื่อเริ่มบันทึก</div>';return}
+  let html='',last='';
+  for(const t of rows){
+    if(t.date!==last){
+      last=t.date;
+      const d=new Date(t.date+'T00:00:00');
+      const net=rows.filter(r=>r.date===t.date).reduce((s,r)=>s+(r.type==='in'?r.amt:-r.amt),0);
+      html+=`<div class="day"><span>${d.toLocaleDateString('th-TH',{weekday:'short',day:'numeric',month:'short'})}</span><span>${net>=0?'+':'−'}${fmt(Math.abs(net))}</span></div>`;
+    }
+    const col=t.type==='in'?'var(--in)':'var(--out)';
+    html+=`<button class="item" data-id="${t.id}"><span class="dot" style="background:${col}"></span>
+      <span class="t"><b>${esc(t.cat)}</b>${t.note?`<span>${esc(t.note)}</span>`:''}</span>
+      <span class="amt ${t.type}">${t.type==='in'?'+':'−'}${fmt(t.amt)}</span></button>`;
+  }
+  $('list').innerHTML=html;
+}
+
+function setType(t){
+  curType=t;
+  document.querySelectorAll('#seg button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+  const keep=$('cat').value;
+  $('cat').innerHTML=CATS[t].map(c=>`<option>${c}</option>`).join('');
+  if(CATS[t].includes(keep))$('cat').value=keep;
+}
+function openDlg(id){
+  editId=id||null;
+  const t=id?tx.find(x=>x.id===id):null;
+  setType(t?t.type:'out');
+  $('amt').value=t?t.amt:'';
+  if(t)$('cat').value=t.cat;
+  $('date').value=t?t.date:(today().startsWith(month)?today():month+'-01');
+  $('note').value=t?t.note:'';
+  $('del').hidden=!t;
+  $('dlg').showModal();
+  if(!t)setTimeout(()=>$('amt').focus(),50);
+}
+
+$('seg').onclick=e=>{const b=e.target.closest('button');if(b)setType(b.dataset.t)};
+$('add').onclick=()=>openDlg();
+$('cancel').onclick=()=>$('dlg').close();
+$('list').onclick=e=>{const b=e.target.closest('.item');if(b)openDlg(Number(b.dataset.id))};
+$('save').onclick=()=>{
+  const amt=parseFloat($('amt').value);
+  if(!(amt>0)){toast('ใส่จำนวนเงินที่มากกว่า 0');$('amt').focus();return}
+  if(!$('date').value){toast('เลือกวันที่');return}
+  const rec={id:editId||Date.now(),type:curType,amt,cat:$('cat').value,note:$('note').value.trim(),date:$('date').value};
+  if(editId)tx=tx.map(x=>x.id===editId?rec:x);else tx.push(rec);
+  save();month=rec.date.slice(0,7);$('dlg').close();render();toast('บันทึกแล้ว');
+};
+$('del').onclick=()=>{
+  if(!confirm('ลบรายการนี้?'))return;
+  tx=tx.filter(x=>x.id!==editId);save();$('dlg').close();render();toast('ลบแล้ว');
+};
+function shift(n){const [y,m]=month.split('-').map(Number);const d=new Date(y,m-1+n,1);month=`${d.getFullYear()}-${pad(d.getMonth()+1)}`;render()}
+$('prev').onclick=()=>shift(-1);$('next').onclick=()=>shift(1);
+
+// backup
+function download(name,text,type){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;
+  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+$('menuBtn').onclick=()=>$('menu').showModal();
+$('menuClose').onclick=()=>$('menu').close();
+$('expJson').onclick=()=>{download(`รายรับรายจ่าย-${today()}.json`,JSON.stringify(tx,null,1),'application/json');toast('สำรองข้อมูลแล้ว')};
+$('expCsv').onclick=()=>{
+  const q=s=>'"'+String(s).replace(/"/g,'""')+'"';
+  const csv='\ufeffวันที่,ประเภท,หมวดหมู่,จำนวนเงิน,บันทึก\n'+
+    [...tx].sort((a,b)=>a.date.localeCompare(b.date)).map(t=>[t.date,t.type==='in'?'รายรับ':'รายจ่าย',q(t.cat),t.amt,q(t.note)].join(',')).join('\n');
+  download(`รายรับรายจ่าย-${today()}.csv`,csv,'text/csv;charset=utf-8');toast('ส่งออก CSV แล้ว');
+};
+$('impBtn').onclick=()=>$('impFile').click();
+$('impFile').onchange=async e=>{
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  try{
+    const data=JSON.parse(await f.text());
+    if(!Array.isArray(data))throw 0;
+    const ok=data.filter(t=>t&&['in','out'].includes(t.type)&&t.amt>0&&/^\d{4}-\d{2}-\d{2}$/.test(t.date));
+    const ids=new Set(tx.map(t=>t.id));let n=0;
+    ok.forEach(t=>{if(!ids.has(t.id)){tx.push({id:t.id||Date.now()+n,type:t.type,amt:+t.amt,cat:String(t.cat||'อื่นๆ'),note:String(t.note||''),date:t.date});n++}});
+    save();render();$('menu').close();toast(`นำเข้า ${n} รายการ`);
+  }catch(err){toast('ไฟล์ไม่ถูกต้อง ใช้ไฟล์ JSON ที่สำรองจากแอปนี้')}
+};
+
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+render();
+</script>
+</body>
+</html>
